@@ -1,0 +1,122 @@
+# JRPG PixiJS Game Assets Specifications
+
+## Character Sprites
+
+### Hero Character
+- **Size:** 16x16 pixels
+- **Animation Frames:**
+  - Walking in 4 directions (3 frames each direction)
+  - Standing idle (1 frame)
+  - Combat stance (1 frame)
+  - Attack animation (2 frames)
+
+### NPCs (Old Sage and Villagers)
+- **Size:** 16x16 pixels
+- **Animation Frames:**
+  - Standing idle (1 frame)
+  - Simple movement (2 frames)
+- Need 3-4 different villager designs for variety
+
+## World Elements
+
+### Village Buildings
+- **Small houses:** 64x64 pixels
+- **Interior elements (tables, chairs):** 16x16 pixels
+
+### World Map
+- **Tiles:** 16x16 pixels
+- **Required terrain types:**
+  - Grass
+  - Paths
+  - Mountains
+  - Forest
+  - Water
+- **Cave entrance:** 48x48 pixels
+
+### Cave Environment
+- **Wall/floor tiles:** 16x16 pixels
+- **Decorative elements:**
+  - Stalagmites: 16x16 pixels
+  - Torches: 16x16 pixels
+
+## Combat Elements
+
+### Monsters
+- **Small monsters:** 32x32 pixels
+- **Boss monster:** 64x64 pixels
+- **Animation Frames:**
+  - Idle (1 frame)
+  - Attack (2 frames)
+
+### Combat UI
+- **Health bars:** 64x8 pixels
+- **Skill icons:** 16x16 pixels
+- **Combat menu background:** 160x48 pixels
+
+## Interactive Elements
+
+### Treasure Chest
+- **Size:** 16x16 pixels
+- **States:**
+  - Closed
+  - Open
+
+### Dialog Boxes
+- **Text box background:** 256x64 pixels
+- **Portrait area:** 64x64 pixels
+- **Font size:** 8 pixels tall for pixel-style text
+
+## Project Structure
+
+```
+project/
+├── index.html
+├── package.json
+├── src/
+│   ├── main.js             # Main entry point
+│   ├── assets/             # All game assets
+│   │   ├── sprites/        # Character sprites
+│   │   ├── tiles/          # Map tiles
+│   │   ├── ui/             # UI elements
+│   │   └── audio/          # Sound effects and music
+│   ├── scenes/             # Game scenes
+│   │   ├── TitleScene.js
+│   │   ├── VillageScene.js
+│   │   ├── WorldMapScene.js
+│   │   ├── CaveScene.js
+│   │   └── BattleScene.js
+│   ├── components/         # Reusable game components
+│   │   ├── Character.js     
+│   │   ├── DialogBox.js
+│   │   ├── CombatSystem.js
+│   │   └── TreasureChest.js
+│   └── utils/              # Helper functions
+└── vite.config.js          # Build configuration
+```
+
+## Game Flow
+
+1. Title Screen → Village Scene (interior of hero's house)
+2. Dialog with Old Sage: "We need you"
+3. Exit house to Village Scene (exterior)
+4. Exit village to World Map Scene
+5. Travel to Cave entrance
+6. Enter Cave Scene
+7. Navigate cave, encounter monsters (transition to Battle Scene)
+8. Find treasure chest (contains special item)
+9. Encounter boss (transition to Battle Scene)
+10. Defeat boss, return to village
+11. Final dialog, game end
+
+## Required AI-Generated Assets Count
+
+- Hero sprite sheet (12 frames total): 1
+- NPC sprites (4 characters, 3 frames each): 4
+- Building sprites: 3-4
+- Terrain tiles: 10-12
+- Monster sprites (3 types, 3 frames each): 3
+- Boss sprite (3 frames): 1
+- Treasure chest (2 frames): 1
+- UI elements (dialog box, menus, icons): 5-6
+
+Total unique sprites needed: ~30
