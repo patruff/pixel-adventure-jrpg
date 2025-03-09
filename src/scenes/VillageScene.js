@@ -2,9 +2,6 @@ import * as PIXI from 'pixi.js';
 import { Scene } from '../utils/Scene';
 import { Character } from '../components/Character';
 import { DialogBox } from '../components/DialogBox';
-import { StatusBox } from '../components/StatusBox';
-import { InventoryBox } from '../components/InventoryBox';
-import { EquipBox } from '../components/EquipBox';
 import { WorldMapScene } from './WorldMapScene';
 
 export class VillageScene extends Scene {
@@ -12,20 +9,12 @@ export class VillageScene extends Scene {
     // Scene properties
     this.isInterior = this.params.isInterior || false;
     
-      try {
-      // Create help and command boxes (specific to gameplay scenes)
-      this.createHelpAndCommandBoxes();
-      
-      // Create the scene
-      this.createBackground();
-      this.createPlayer();
-      this.createNPCs();
-      this.createDialogBox();
-      this.createGameMenus();
-      this.setupKeyboard();
-    } catch (error) {
-      console.error("Error initializing VillageScene:", error);
-    }
+    // Create the scene
+    this.createBackground();
+    this.createPlayer();
+    this.createNPCs();
+    this.createDialogBox();
+    this.setupKeyboard();
     
     // If interior, show initial dialog
     if (this.isInterior && window.JRPG.gameState.questProgress.mainQuest === 0) {
@@ -221,20 +210,6 @@ export class VillageScene extends Scene {
     this.addChild(this.dialogBox);
   }
   
-  createGameMenus() {
-    // Create status box
-    this.statusBox = new StatusBox();
-    this.addChild(this.statusBox);
-    
-    // Create inventory box
-    this.inventoryBox = new InventoryBox();
-    this.addChild(this.inventoryBox);
-    
-    // Create equip box
-    this.equipBox = new EquipBox();
-    this.addChild(this.equipBox);
-  }
-  
   setupKeyboard() {
     // Setup keyboard for player movement
     this.keys = {
@@ -243,20 +218,17 @@ export class VillageScene extends Scene {
       left: keyboard('ArrowLeft'),
       right: keyboard('ArrowRight'),
       action: keyboard(' '),
-      talkToVillager: keyboard('v'),
-      inventory: keyboard('i'),
-      status: keyboard('h'),
-      equip: keyboard('e')
+      talkToVillager: keyboard('v')
     };
     
     // Key press handlers
     this.keys.up.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(0, -1);
     };
     
     this.keys.up.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.down.isDown) {
         this.player.move(0, 0);
       } else {
@@ -265,12 +237,12 @@ export class VillageScene extends Scene {
     };
     
     this.keys.down.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(0, 1);
     };
     
     this.keys.down.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.up.isDown) {
         this.player.move(0, 0);
       } else {
@@ -279,12 +251,12 @@ export class VillageScene extends Scene {
     };
     
     this.keys.left.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(-1, 0);
     };
     
     this.keys.left.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.right.isDown) {
         this.player.move(0, 0);
       } else {
@@ -293,12 +265,12 @@ export class VillageScene extends Scene {
     };
     
     this.keys.right.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(1, 0);
     };
     
     this.keys.right.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.left.isDown) {
         this.player.move(0, 0);
       } else {
@@ -308,8 +280,8 @@ export class VillageScene extends Scene {
     
     // Action key for interaction
     this.keys.action.press = () => {
-      if (this.anyMenuVisible()) {
-        this.hideAllMenus();
+      if (this.dialogBox.visible) {
+        this.dialogBox.close();
         return;
       }
       this.checkInteractions();
@@ -317,48 +289,12 @@ export class VillageScene extends Scene {
     
     // Talk to villager key
     this.keys.talkToVillager.press = () => {
-      if (this.anyMenuVisible()) {
-        this.hideAllMenus();
+      if (this.dialogBox.visible) {
+        this.dialogBox.close();
         return;
       }
       this.findAndTalkToNearestVillager();
     };
-    
-    // Inventory key
-    this.keys.inventory.press = () => {
-      this.hideAllMenus();
-      this.inventoryBox.toggle();
-    };
-    
-    // Status key
-    this.keys.status.press = () => {
-      this.hideAllMenus();
-      this.statusBox.toggle();
-    };
-    
-    // Equip key
-    this.keys.equip.press = () => {
-      this.hideAllMenus();
-      this.equipBox.toggle();
-    };
-  }
-  
-  anyMenuVisible() {
-    return (
-      this.dialogBox.visible || 
-      (this.commandBox && this.commandBox.visible) || 
-      (this.statusBox && this.statusBox.visible) || 
-      (this.inventoryBox && this.inventoryBox.visible) || 
-      (this.equipBox && this.equipBox.visible)
-    );
-  }
-  
-  hideAllMenus() {
-    if (this.dialogBox) this.dialogBox.close();
-    if (this.commandBox) this.commandBox.hide();
-    if (this.statusBox) this.statusBox.hide();
-    if (this.inventoryBox) this.inventoryBox.hide();
-    if (this.equipBox) this.equipBox.hide();
   }
   
   findAndTalkToNearestVillager() {
@@ -385,19 +321,6 @@ export class VillageScene extends Scene {
       this.dialogBox.setText([
         "There's no one close enough to talk to."
       ]);
-      
-      // Ensure dialog closes properly
-      this.dialogBox.options.onComplete = () => {
-        this.dialogBox.visible = false;
-        
-        // Reset player state to ensure they can move
-        if (this.player) {
-          if (!this.keys.up.isDown && !this.keys.down.isDown && 
-              !this.keys.left.isDown && !this.keys.right.isDown) {
-            this.player.move(0, 0);
-          }
-        }
-      };
     }
   }
   
@@ -413,18 +336,6 @@ export class VillageScene extends Scene {
     this.dialogBox.options.onComplete = () => {
       // Update quest progress
       window.JRPG.gameState.questProgress.mainQuest = 1;
-      
-      // Make sure dialogBox is not visible after closing
-      this.dialogBox.visible = false;
-      
-      // Reset player state to ensure they can move
-      if (this.player) {
-        // If arrow keys are not being pressed when dialog ends, ensure player is stopped
-        if (!this.keys.up.isDown && !this.keys.down.isDown && 
-            !this.keys.left.isDown && !this.keys.right.isDown) {
-          this.player.move(0, 0);
-        }
-      }
     };
   }
   
@@ -437,37 +348,11 @@ export class VillageScene extends Scene {
         "You must hurry to the cave and defeat the evil that lurks there!",
         "Our village is counting on you, brave hero."
       ], "Villager");
-      
-      // Ensure dialog closes properly
-      this.dialogBox.options.onComplete = () => {
-        this.dialogBox.visible = false;
-        
-        // Reset player state to ensure they can move
-        if (this.player) {
-          if (!this.keys.up.isDown && !this.keys.down.isDown && 
-              !this.keys.left.isDown && !this.keys.right.isDown) {
-            this.player.move(0, 0);
-          }
-        }
-      };
     } else if (window.JRPG.gameState.questProgress.mainQuest === 2) {
       this.dialogBox.setText([
         "You've defeated the evil! You're our hero!",
         "The village will forever be in your debt."
       ], "Villager");
-      
-      // Ensure dialog closes properly
-      this.dialogBox.options.onComplete = () => {
-        this.dialogBox.visible = false;
-        
-        // Reset player state to ensure they can move
-        if (this.player) {
-          if (!this.keys.up.isDown && !this.keys.down.isDown && 
-              !this.keys.left.isDown && !this.keys.right.isDown) {
-            this.player.move(0, 0);
-          }
-        }
-      };
     }
   }
   
@@ -506,33 +391,24 @@ export class VillageScene extends Scene {
   
   update(delta) {
     // Update player
-    if (this.player) {
-      this.player.update(delta);
-    }
+    this.player.update(delta);
     
     // Update NPCs
-    if (this.npcs) {
-      for (const npc of this.npcs) {
-        npc.update(delta);
-      }
+    for (const npc of this.npcs) {
+      npc.update(delta);
     }
     
     // Update dialog box
-    if (this.dialogBox) {
-      this.dialogBox.update(delta);
-    }
+    this.dialogBox.update(delta);
     
-    // Check for exits if no menu is visible
-    const menuVisible = this.anyMenuVisible();
-    if (!menuVisible) {
+    // Check for exits
+    if (!this.dialogBox.visible) {
       this.checkExits();
     }
     
-    // Simple boundary collision for player
-    if (this.player) {
-      this.player.x = Math.max(10, Math.min(window.JRPG.constants.GAME_WIDTH - 10, this.player.x));
-      this.player.y = Math.max(10, Math.min(window.JRPG.constants.GAME_HEIGHT - 10, this.player.y));
-    }
+    // Simple boundary collision
+    this.player.x = Math.max(10, Math.min(window.JRPG.constants.GAME_WIDTH - 10, this.player.x));
+    this.player.y = Math.max(10, Math.min(window.JRPG.constants.GAME_HEIGHT - 10, this.player.y));
   }
   
   destroy() {

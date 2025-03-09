@@ -8,9 +8,6 @@ import { BattleScene } from './BattleScene';
 
 export class CaveScene extends Scene {
   init() {
-    // Create help and command boxes (specific to gameplay scenes)
-    this.createHelpAndCommandBoxes();
-    
     // Create the scene elements
     this.createBackground();
     this.createPlayer();
@@ -215,12 +212,12 @@ export class CaveScene extends Scene {
     
     // Key press handlers
     this.keys.up.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(0, -1);
     };
     
     this.keys.up.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.down.isDown) {
         this.player.move(0, 0);
       } else {
@@ -229,12 +226,12 @@ export class CaveScene extends Scene {
     };
     
     this.keys.down.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(0, 1);
     };
     
     this.keys.down.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.up.isDown) {
         this.player.move(0, 0);
       } else {
@@ -243,12 +240,12 @@ export class CaveScene extends Scene {
     };
     
     this.keys.left.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(-1, 0);
     };
     
     this.keys.left.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.right.isDown) {
         this.player.move(0, 0);
       } else {
@@ -257,12 +254,12 @@ export class CaveScene extends Scene {
     };
     
     this.keys.right.press = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       this.player.move(1, 0);
     };
     
     this.keys.right.release = () => {
-      if (this.anyMenuVisible()) return;
+      if (this.dialogBox.visible) return;
       if (!this.keys.left.isDown) {
         this.player.move(0, 0);
       } else {
@@ -272,8 +269,8 @@ export class CaveScene extends Scene {
     
     // Action key for interaction
     this.keys.action.press = () => {
-      if (this.anyMenuVisible()) {
-        this.hideAllMenus();
+      if (this.dialogBox.visible) {
+        this.dialogBox.close();
         return;
       }
       this.checkInteractions();
@@ -371,18 +368,6 @@ export class CaveScene extends Scene {
     }
   }
   
-  anyMenuVisible() {
-    return (
-      this.dialogBox.visible || 
-      (this.commandBox && this.commandBox.visible)
-    );
-  }
-  
-  hideAllMenus() {
-    this.dialogBox.close();
-    if (this.commandBox) this.commandBox.hide();
-  }
-
   update(delta) {
     // Update player
     this.player.update(delta);
@@ -394,12 +379,12 @@ export class CaveScene extends Scene {
     this.dialogBox.update(delta);
     
     // Check for exits
-    if (!this.anyMenuVisible()) {
+    if (!this.dialogBox.visible) {
       this.checkExits();
     }
     
     // Check for random encounters if not in dialog
-    if (!this.anyMenuVisible()) {
+    if (!this.dialogBox.visible) {
       this.checkRandomEncounter(delta);
     }
   }

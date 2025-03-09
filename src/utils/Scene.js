@@ -1,6 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { HelpBox } from '../components/HelpBox';
-import { CommandBox } from '../components/CommandBox';
 
 export class Scene extends PIXI.Container {
   constructor(app, params = {}) {
@@ -16,39 +14,6 @@ export class Scene extends PIXI.Container {
     this.app.ticker.add(this.update, this);
   }
   
-  // Method to be called by gameplay scenes, but not title screen
-  createHelpAndCommandBoxes() {
-    // Create help box
-    this.helpBox = new HelpBox();
-    this.addChild(this.helpBox);
-    
-    // Create command box
-    this.commandBox = new CommandBox({
-      x: (window.JRPG.constants.GAME_WIDTH - 200) / 2,
-      y: (window.JRPG.constants.GAME_HEIGHT - 150) / 2
-    });
-    this.addChild(this.commandBox);
-    
-    // Setup keyboard for command box
-    this.setupCommandKeyboard();
-  }
-  
-  setupCommandKeyboard() {
-    // Keyboard input for commands
-    this.keyCommand = keyboard('c');
-    this.keyCommand.press = () => {
-      this.commandBox.toggle();
-    };
-    
-    // Close command box with escape
-    this.keyEscape = keyboard('Escape');
-    this.keyEscape.press = () => {
-      if (this.commandBox && this.commandBox.visible) {
-        this.commandBox.hide();
-      }
-    };
-  }
-  
   init() {
     // Override in child classes to initialize the scene
   }
@@ -60,10 +25,6 @@ export class Scene extends PIXI.Container {
   destroy() {
     // Stop update loop
     this.app.ticker.remove(this.update, this);
-    
-    // Clean up keyboard listeners if they exist
-    if (this.keyCommand) this.keyCommand.unsubscribe();
-    if (this.keyEscape) this.keyEscape.unsubscribe();
     
     // Destroy all children
     super.destroy({ children: true });

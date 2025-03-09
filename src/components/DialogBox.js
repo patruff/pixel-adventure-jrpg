@@ -189,6 +189,11 @@ export class DialogBox extends PIXI.Container {
     this.visible = false;
     this.isTyping = false;
     this.isWaitingForInput = false;
+    
+    // Call onComplete if set
+    if (this.options.onComplete) {
+      this.options.onComplete();
+    }
   }
   
   destroy() {

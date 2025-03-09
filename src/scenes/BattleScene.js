@@ -11,19 +11,12 @@ export class BattleScene extends Scene {
     this.ReturnScene = this.params.returnScene || null;
     this.onVictory = this.params.onVictory || null;
     
-    try {
-      // Create help and command boxes (specific to gameplay scenes)
-      this.createHelpAndCommandBoxes();
-      
-      // Create the battle scene
-      this.createBackground();
-      this.createCombatants();
-      this.createUI();
-      this.setupCombat();
-      this.setupKeyboard();
-    } catch (error) {
-      console.error("Error initializing BattleScene:", error);
-    }
+    // Create the battle scene
+    this.createBackground();
+    this.createCombatants();
+    this.createUI();
+    this.setupCombat();
+    this.setupKeyboard();
   }
   
   createBackground() {
@@ -388,28 +381,24 @@ export class BattleScene extends Scene {
     
     // Key press handlers
     this.keys.up.press = () => {
-      if (this.anyMenuVisible()) {
-        if (this.combatMenu && this.combatMenu.visible && this.menuOptions && this.menuOptions.length) {
-          this.menuOptions[this.selectedOption].indicator.visible = false;
-          this.selectedOption = (this.selectedOption - 1 + this.menuOptions.length) % this.menuOptions.length;
-          this.menuOptions[this.selectedOption].indicator.visible = true;
-        }
+      if (this.combatMenu && this.combatMenu.visible && this.menuOptions && this.menuOptions.length) {
+        this.menuOptions[this.selectedOption].indicator.visible = false;
+        this.selectedOption = (this.selectedOption - 1 + this.menuOptions.length) % this.menuOptions.length;
+        this.menuOptions[this.selectedOption].indicator.visible = true;
       }
     };
     
     this.keys.down.press = () => {
-      if (this.anyMenuVisible()) {
-        if (this.combatMenu && this.combatMenu.visible && this.menuOptions && this.menuOptions.length) {
-          this.menuOptions[this.selectedOption].indicator.visible = false;
-          this.selectedOption = (this.selectedOption + 1) % this.menuOptions.length;
-          this.menuOptions[this.selectedOption].indicator.visible = true;
-        }
+      if (this.combatMenu && this.combatMenu.visible && this.menuOptions && this.menuOptions.length) {
+        this.menuOptions[this.selectedOption].indicator.visible = false;
+        this.selectedOption = (this.selectedOption + 1) % this.menuOptions.length;
+        this.menuOptions[this.selectedOption].indicator.visible = true;
       }
     };
     
     this.keys.action.press = () => {
-      if (this.commandBox && this.commandBox.visible) {
-        this.hideAllMenus();
+      if (this.dialogBox && this.dialogBox.visible) {
+        this.dialogBox.close();
         return;
       }
       
@@ -476,29 +465,15 @@ export class BattleScene extends Scene {
     };
   }
   
-  anyMenuVisible() {
-    return (
-      (this.dialogBox && this.dialogBox.visible) || 
-      (this.commandBox && this.commandBox.visible) ||
-      (this.combatMenu && this.combatMenu.visible)
-    );
-  }
-  
-  hideAllMenus() {
-    if (this.dialogBox) this.dialogBox.close();
-    if (this.commandBox) this.commandBox.hide();
-    if (this.combatMenu) this.combatMenu.visible = false;
-  }
-
   update(delta) {
     // Update player
-    if (this.player) this.player.update(delta);
+    this.player.update(delta);
     
     // Update enemy
-    if (this.enemy) this.enemy.update(delta);
+    this.enemy.update(delta);
     
     // Update dialog box
-    if (this.dialogBox) this.dialogBox.update(delta);
+    this.dialogBox.update(delta);
   }
   
   destroy() {
